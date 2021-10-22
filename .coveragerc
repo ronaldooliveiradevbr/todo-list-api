@@ -1,0 +1,6 @@
+[run]
+omit =
+    */migrations/*
+    todo_api/settings.py
+    todo_api/wsgi.py
+    manage.py

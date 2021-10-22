@@ -1,0 +1,2 @@
+./manage.py migrate
+./manage.py loaddata --app api initial_data.json
