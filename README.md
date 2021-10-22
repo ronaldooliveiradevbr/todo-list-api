@@ -162,7 +162,7 @@ There are two GitHub Actions configured in this project:
 
 ## Useful command-line features
 
-* `make drop-db`: drop sqlite3 database file. Useful for a fresh start
+* `make drop-local-db`: drop sqlite3 database file. Useful for a fresh start
 * `make install`: recreates sqlite3 database file, run all migrations and creates sample users
 * `make run`: start server on [http://localhost:8000](http://localhost:8000)
 * `make test`: run tests suite
