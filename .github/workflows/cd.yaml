@@ -1,0 +1,65 @@
+name: To-Do List API CD
+
+on:
+  push:
+    branches:
+     - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: todoapi
+          POSTGRES_USER: todoapi
+          POSTGRES_PASSWORD: todoapi
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.9]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Curl
+        run: |
+          sudo apt-get update
+          sudo apt install libcurl4-openssl-dev libssl-dev
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+      - name: Create env
+        run: cp contrib/env-sample .env
+      - name: Run Tests
+        env:
+          SECRET_KEY: ====mY_sEcReT_kEy====
+          ALLOWED_HOSTS: "*"
+          DATABASE_URL: postgres://todoapi:todoapi@localhost:5432/todoapi
+        run: |
+          make test
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.11.10
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "todo-list-api"
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
